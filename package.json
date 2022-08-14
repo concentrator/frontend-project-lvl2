@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/concentrator/frontend-project-lvl2#readme",
   "dependencies": {
+    "commander": "^9.4.0",
     "debug": "^4.3.4",
     "lodash": "^4.17.21"
   },
