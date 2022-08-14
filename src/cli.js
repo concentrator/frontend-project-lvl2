@@ -8,10 +8,7 @@ program
   .version('0.0.1', '-V, --version', 'output the version number')
   .usage('[options] <filepath1> <filepath2>')
   .helpOption('-h, --help', 'output usage information')
-  .option('-f, --format <type>', 'output format')
-  .configureHelp({
-    // sortOptions: true,
-  });
+  .option('-f, --format [type]', 'output format (default: "stylish")');
 
 export default () => {
   program.parse();
