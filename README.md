@@ -9,7 +9,7 @@
 
 ## Project description
 
-Second training project on the Hexlet Frontend Developer program. Difference Generator - command line tool that compares two configuration files and shows a difference in a human readable view.
+Second training project on the Hexlet Frontend Developer program. Difference Generator - command line tool that compares two configuration files and shows a difference in a human readable format.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ To install and run this project locally __nodejs__ is required.
 make install
 ```
 
-### Create a symlinks in the global node_modules and bin dirs to project dir (optional)
+### Create a symlink in the global node_modules and bin dirs to the project dir (to run in cli)
 
 ```bash
 sudo npm link
@@ -33,18 +33,11 @@ sudo npm link
 
 ```bash
 make lint
+npm test
 ```
 
-## Run app (symlinks created)
+## CLI usage
 
 ```bash
-gendiff
+gendiff [options] <filepath1> <filepath2>
 ```
-
-## Run app (no symlinks)
-
-```bash
-make gendiff
-```
-
-[Install]
