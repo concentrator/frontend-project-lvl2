@@ -1,24 +1,33 @@
 import { readFileSync } from 'node:fs';
 import path from 'path';
+import yaml from 'js-yaml';
 // import _ from 'lodash';
 
 const buildFullPath = (filepath) => path.resolve(process.cwd(), filepath);
 
-const getExtension = (filename) => {
-  const ext = path.extname(filename).split('.');
+const getExtension = (filepath) => {
+  const ext = path.extname(filepath).split('.');
   return ext[ext.length - 1];
 };
 
-const getFileFormat = (filepath) => {
+const getFormat = (filepath) => {
   const filename = path.basename(filepath).toLowerCase();
-  const format = getExtension(filename);
+  const extension = getExtension(filename);
+  let format;
+  if (extension === 'json') {
+    format = 'json';
+  } else if (extension === 'yml' || extension === 'yaml') {
+    format = 'yaml';
+  }
   return format;
 };
 
-const parseFile = (data, format) => {
+const parse = (data, format) => {
   switch (format) {
     case 'json':
       return JSON.parse(data);
+    case 'yaml':
+      return yaml.load(data);
     default:
       throw new Error('Unexpected format');
   }
@@ -27,24 +36,17 @@ const parseFile = (data, format) => {
 const compareProp = (key, obj1, obj2) => {
   const oldValue = obj1[key];
   const newValue = obj2[key];
+  const res = { key, oldValue, newValue };
   if (!Object.hasOwn(obj1, key)) {
-    return {
-      key, oldValue, newValue, state: 'added',
-    };
+    res.state = 'added';
+  } else if (!Object.hasOwn(obj2, key)) {
+    res.state = 'deleted';
+  } else if (oldValue !== newValue) {
+    res.state = 'changed';
+  } else {
+    res.state = 'unchanged';
   }
-  if (!Object.hasOwn(obj2, key)) {
-    return {
-      key, oldValue, newValue, state: 'deleted',
-    };
-  }
-  if (oldValue !== newValue) {
-    return {
-      key, oldValue, newValue, state: 'changed',
-    };
-  }
-  return {
-    key, oldValue, newValue, state: 'unchanged',
-  };
+  return res;
 };
 
 const compareObjects = (obj1, obj2) => {
@@ -99,12 +101,12 @@ const buildDiff = (filepath1, filepath2) => {
   const path1 = buildFullPath(filepath1);
   const path2 = buildFullPath(filepath2);
   const file1 = readFileSync(path1);
-  const format1 = getFileFormat(filepath1);
+  const format1 = getFormat(filepath1);
   const file2 = readFileSync(path2);
-  const format2 = getFileFormat(filepath2);
+  const format2 = getFormat(filepath2);
 
-  const obj1 = parseFile(file1, format1);
-  const obj2 = parseFile(file2, format2);
+  const obj1 = parse(file1, format1);
+  const obj2 = parse(file2, format2);
 
   return compareObjects(obj1, obj2);
 };
@@ -115,6 +117,11 @@ const genDiff = (filepath1, filepath2) => {
   console.log(formatted);
 };
 
-export { buildDiff };
+export {
+  getExtension,
+  getFormat,
+  parse,
+  buildDiff,
+};
 
 export default genDiff;

@@ -41,6 +41,10 @@ const result1 = [
   },
 ];
 
-test('Compare 2 flat objects, default params', () => {
+test('Compare 2 flat JSON files, default params', () => {
   expect(buildDiff(getFixturePath('file1.json'), getFixturePath('file2.json'))).toEqual(result1);
+});
+
+test('Compare 2 flat YAML files, default params', () => {
+  expect(buildDiff(getFixturePath('file1.yml'), getFixturePath('file2.yml'))).toEqual(result1);
 });

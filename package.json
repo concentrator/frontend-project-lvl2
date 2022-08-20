@@ -26,6 +26,7 @@
   "dependencies": {
     "commander": "^9.4.0",
     "debug": "^4.3.4",
+    "js-yaml": "^4.1.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
@@ -44,9 +45,9 @@
     "collectCoverageFrom": [
       "**/*.{js,jsx}",
       "!**/node_modules/**",
-      "!**/vendor/**"
-    ],
-    "coverageReporters": ["lcov"]
+      "!**/coverage/**",
+      "!**/bin/**"
+    ]
   },
   "engines": {
     "npm": ">=8",
