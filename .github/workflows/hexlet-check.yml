@@ -15,6 +15,9 @@ on:
     tags:
       - '**'
 
+env:
+  CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,6 +37,4 @@ jobs:
         run: ./cc-test-reporter before-build
       - run: npm test
       - name: CC after test
-        with:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: ./cc-test-reporter after-build
