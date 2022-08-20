@@ -9,6 +9,10 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/f3b2f347f4e2790c74c8/maintainability)](https://codeclimate.com/github/concentrator/frontend-project-lvl2/maintainability)
 
+### Test Coverage
+
+[![Test Coverage](https://api.codeclimate.com/v1/badges/f3b2f347f4e2790c74c8/test_coverage)](https://codeclimate.com/github/concentrator/frontend-project-lvl2/test_coverage)
+
 ## Project description
 
 Second training project on the Hexlet Frontend Developer program. Difference Generator - command line tool that compares two configuration files and shows a difference in a human readable format.
