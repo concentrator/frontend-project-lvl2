@@ -39,6 +39,15 @@
     "npm-check-updates": "^16.0.5",
     "simple-git-hooks": "^2.8.0"
   },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.{js,jsx}",
+      "!**/node_modules/**",
+      "!**/vendor/**"
+    ],
+    "coverageReporters": ["lcov"]
+  },
   "engines": {
     "npm": ">=8",
     "node": ">=16"

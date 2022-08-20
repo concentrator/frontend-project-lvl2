@@ -73,11 +73,11 @@ const formatToStylish = (diff) => {
     }
     return { ...acc, ...res };
   }, {});
-  const comma = /,/gi;
-  const quote = /"/gi;
-  const colon = /:/gi;
-  const leftBrace = /{/i;
-  const rightBrace = /}/i;
+  const comma = /,/g;
+  const quote = /"/g;
+  const colon = /:/g;
+  const leftBrace = /{/;
+  const rightBrace = /}/;
   return JSON.stringify(result)
     .replace(leftBrace, '{\n  ')
     .replace(rightBrace, '  \n}')
@@ -95,7 +95,7 @@ const formatDiff = (diff, format = 'stylish') => {
   }
 };
 
-const genDiff = (filepath1, filepath2) => {
+const buildDiff = (filepath1, filepath2) => {
   const path1 = buildFullPath(filepath1);
   const path2 = buildFullPath(filepath2);
   const file1 = readFileSync(path1);
@@ -106,8 +106,15 @@ const genDiff = (filepath1, filepath2) => {
   const obj1 = parseFile(file1, format1);
   const obj2 = parseFile(file2, format2);
 
-  const diff = compareObjects(obj1, obj2);
-  console.log(formatDiff(diff));
+  return compareObjects(obj1, obj2);
 };
+
+const genDiff = (filepath1, filepath2) => {
+  const diff = buildDiff(filepath1, filepath2);
+  const formatted = formatDiff(diff);
+  console.log(formatted);
+};
+
+export { buildDiff };
 
 export default genDiff;

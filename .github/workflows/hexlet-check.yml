@@ -25,3 +25,13 @@ jobs:
         uses: hexlet/project-action@release
         with:
           hexlet-id: ${{ secrets.HEXLET_ID }}
+      - run: make lint
+      - name: CC Before test
+        run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        run: chmod +x ./cc-test-reporter
+        run: ./cc-test-reporter before-build
+      - run: npm test
+      - name: CC After test
+        with:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        run: ./cc-test-reporter after-build
