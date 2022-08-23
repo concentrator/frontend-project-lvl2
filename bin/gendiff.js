@@ -10,11 +10,12 @@ program
   .description('Compares two configuration files and shows a difference.')
   .version('0.1.1', '-V, --version', 'output the version number')
   .helpOption('-h, --help', 'output usage information')
-  .option('-f, --format [type]', 'output format (default: "stylish")')
+  .option('-f, --format [type]', 'output format', 'stylish')
   .argument('<filepath1>')
   .argument('<filepath2>')
   .action((filepath1, filepath2) => {
-    genDiff(filepath1, filepath2);
+    const diff = genDiff(filepath1, filepath2);
+    console.log(diff);
   });
 
 program.parse(process.argv);

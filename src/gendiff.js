@@ -38,13 +38,13 @@ const compareProp = (key, obj1, obj2) => {
   const newValue = obj2[key];
   const res = { key, oldValue, newValue };
   if (!Object.hasOwn(obj1, key)) {
-    res.state = 'added';
+    res.type = 'added';
   } else if (!Object.hasOwn(obj2, key)) {
-    res.state = 'deleted';
+    res.type = 'deleted';
   } else if (oldValue !== newValue) {
-    res.state = 'changed';
+    res.type = 'changed';
   } else {
-    res.state = 'unchanged';
+    res.type = 'unchanged';
   }
   return res;
 };
@@ -55,40 +55,33 @@ const compareObjects = (obj1, obj2) => {
 };
 
 const formatToStylish = (diff) => {
-  const result = diff.reduce((acc, item) => {
-    const res = {};
-    const key = `  ${item.key}`;
-    const keyMinus = `- ${item.key}`;
-    const keyPlus = `+ ${item.key}`;
-    if (item.state === 'unchanged') {
-      res[key] = item.newValue;
+  const spacer = '  ';
+  const minus = '- ';
+  const plus = '+ ';
+  const result = diff.reduce((acc, item, index) => {
+    const isLastLine = (index === diff.length - 1);
+    const lineBreak = '\n';
+    const eol = isLastLine ? '\n}' : '\n';
+    const { key, oldValue, newValue } = item;
+    let line = '';
+    if (item.type === 'unchanged') {
+      line = `${spacer.repeat(2)}${key}: ${newValue}${eol}`;
     }
-    if (item.state === 'changed') {
-      res[keyMinus] = item.oldValue;
-      res[keyPlus] = item.newValue;
+    if (item.type === 'changed') {
+      line = `${spacer}${minus}${key}: ${oldValue}${lineBreak}${spacer}${plus}${key}: ${newValue}${eol}`;
     }
-    if (item.state === 'deleted') {
-      res[keyMinus] = item.oldValue;
+    if (item.type === 'deleted') {
+      line = `${spacer}${minus}${key}: ${oldValue}${eol}`;
     }
-    if (item.state === 'added') {
-      res[keyPlus] = item.newValue;
+    if (item.type === 'added') {
+      line = `${spacer}${plus}${key}: ${newValue}${eol}`;
     }
-    return { ...acc, ...res };
-  }, {});
-  const comma = /,/g;
-  const quote = /"/g;
-  const colon = /:/g;
-  const leftBrace = /{/;
-  const rightBrace = /}/;
-  return JSON.stringify(result)
-    .replace(leftBrace, '{\n  ')
-    .replace(rightBrace, '  \n}')
-    .replace(comma, '\n  ')
-    .replace(colon, ': ')
-    .replace(quote, '');
+    return `${acc}${line}`;
+  }, '{\n');
+  return result;
 };
 
-const formatDiff = (diff, format = 'stylish') => {
+const formatDiff = (diff, format) => {
   switch (format) {
     case 'stylish':
       return formatToStylish(diff);
@@ -98,11 +91,9 @@ const formatDiff = (diff, format = 'stylish') => {
 };
 
 const buildDiff = (filepath1, filepath2) => {
-  const path1 = buildFullPath(filepath1);
-  const path2 = buildFullPath(filepath2);
-  const file1 = readFileSync(path1);
+  const file1 = readFileSync(buildFullPath(filepath1));
   const format1 = getFormat(filepath1);
-  const file2 = readFileSync(path2);
+  const file2 = readFileSync(buildFullPath(filepath2));
   const format2 = getFormat(filepath2);
 
   const obj1 = parse(file1, format1);
@@ -111,10 +102,9 @@ const buildDiff = (filepath1, filepath2) => {
   return compareObjects(obj1, obj2);
 };
 
-const genDiff = (filepath1, filepath2) => {
+const genDiff = (filepath1, filepath2, format = 'stylish') => {
   const diff = buildDiff(filepath1, filepath2);
-  const formatted = formatDiff(diff);
-  console.log(formatted);
+  return formatDiff(diff, format);
 };
 
 export {

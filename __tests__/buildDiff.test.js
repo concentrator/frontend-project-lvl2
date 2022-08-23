@@ -13,31 +13,31 @@ const result1 = [
     key: 'follow',
     oldValue: false,
     newValue: undefined,
-    state: 'deleted',
+    type: 'deleted',
   },
   {
     key: 'host',
     oldValue: 'hexlet.io',
     newValue: 'hexlet.io',
-    state: 'unchanged',
+    type: 'unchanged',
   },
   {
     key: 'proxy',
     oldValue: '123.234.53.22',
     newValue: undefined,
-    state: 'deleted',
+    type: 'deleted',
   },
   {
     key: 'timeout',
     oldValue: 50,
     newValue: 20,
-    state: 'changed',
+    type: 'changed',
   },
   {
     key: 'verbose',
     oldValue: undefined,
     newValue: true,
-    state: 'added',
+    type: 'added',
   },
 ];
 
