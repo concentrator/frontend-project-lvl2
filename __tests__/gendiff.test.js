@@ -9,12 +9,12 @@ const __dirname = path.dirname(__filename);
 
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 
-const result1 = readFileSync(getFixturePath('result.txt'), { encoding: 'utf8', flag: 'r' });
+const result = readFileSync(getFixturePath('result_nested.txt'), { encoding: 'utf8', flag: 'r' });
 
-test('Compare 2 flat JSON files, default params', () => {
-  expect(genDiff(getFixturePath('file1.json'), getFixturePath('file2.json'))).toEqual(result1);
+test('Compare 2 JSON files, default params', () => {
+  expect(genDiff(getFixturePath('file1_nested.json'), getFixturePath('file2_nested.json'))).toEqual(result);
 });
 
-test('Compare 2 flat YAML files, default params', () => {
-  expect(genDiff(getFixturePath('file1.yml'), getFixturePath('file2.yml'))).toEqual(result1);
+test('Compare 2 YAML files, default params', () => {
+  expect(genDiff(getFixturePath('file1_nested.yml'), getFixturePath('file2_nested.yml'))).toEqual(result);
 });

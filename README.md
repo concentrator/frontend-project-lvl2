@@ -47,3 +47,5 @@ npm test
 ```bash
 gendiff [options] <filepath1> <filepath2>
 ```
+
+[Compare 2 nested JSON files](https://asciinema.org/a/mjHcubVPqxVAXWzHzgCxkZyDN)
