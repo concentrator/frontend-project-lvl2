@@ -1,4 +1,4 @@
-# Brain Games
+# genDiff
 
 ## Project state
 
