@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 
-const result = readFileSync(getFixturePath('result_nested.txt'), { encoding: 'utf8', flag: 'r' });
+const result = readFileSync(getFixturePath('result_nested_stylish.txt'), { encoding: 'utf8', flag: 'r' });
 
 test('Compare 2 JSON files, default params', () => {
   expect(genDiff(getFixturePath('file1_nested.json'), getFixturePath('file2_nested.json'))).toEqual(result);
