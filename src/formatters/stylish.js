@@ -24,8 +24,10 @@ const stringifyObject = (obj, depth = 1) => {
 };
 
 const formatValue = (value, depth) => {
-  if (value === '') return '';
-  return (_.isObject(value)) ? ` ${stringifyObject(value, depth + 1)}` : ` ${value}`;
+  if (_.isObject(value)) {
+    return ` ${stringifyObject(value, depth + 1)}`;
+  }
+  return ` ${value}`;
 };
 
 const formatter = (diff) => {
