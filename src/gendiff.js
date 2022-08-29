@@ -79,10 +79,11 @@ const compareObjects = (obj1, obj2) => {
 };
 
 const buildDiff = (filepath1, filepath2) => {
-  const file1 = readFileSync(buildFullPath(filepath1));
   const format1 = getFormat(filepath1);
-  const file2 = readFileSync(buildFullPath(filepath2));
   const format2 = getFormat(filepath2);
+
+  const file1 = readFileSync(buildFullPath(filepath1));
+  const file2 = readFileSync(buildFullPath(filepath2));
 
   const obj1 = parse(file1, format1);
   const obj2 = parse(file2, format2);
