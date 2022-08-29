@@ -48,4 +48,4 @@ npm test
 gendiff [options] <filepath1> <filepath2>
 ```
 
-[Compare 2 nested JSON files](https://asciinema.org/a/mjHcubVPqxVAXWzHzgCxkZyDN)
+[Program usage examples](https://asciinema.org/a/6iGTB2b53YtwzToYIQ99qu9Wa)
