@@ -14,13 +14,13 @@ const getExtension = (filepath) => {
 const getFormat = (filepath) => {
   const filename = path.basename(filepath).toLowerCase();
   const extension = getExtension(filename);
-  let format;
   if (extension === 'json') {
-    format = 'json';
-  } else if (extension === 'yml' || extension === 'yaml') {
-    format = 'yaml';
+    return 'json';
   }
-  return format;
+  if (extension === 'yml' || extension === 'yaml') {
+    return 'yaml';
+  }
+  throw new Error('Unexpected file extension');
 };
 
 const parse = (data, format) => {
@@ -38,30 +38,44 @@ const compareObjects = (obj1, obj2) => {
   const compareProp = (key) => {
     const firstValue = obj1[key];
     const secondValue = obj2[key];
-    const res = { name: key };
     if (_.isObject(firstValue) && _.isObject(secondValue)) {
-      res.type = 'parent';
-      res.children = compareObjects(firstValue, secondValue);
-      return res;
+      return {
+        name: key,
+        type: 'parent',
+        children: compareObjects(firstValue, secondValue),
+      };
     }
     if (!Object.hasOwn(obj1, key)) {
-      res.type = 'added';
-      res.value = secondValue;
-    } else if (!Object.hasOwn(obj2, key)) {
-      res.type = 'deleted';
-      res.value = firstValue;
-    } else if (firstValue !== secondValue) {
-      res.type = 'changed';
-      res.firstValue = firstValue;
-      res.secondValue = secondValue;
-    } else {
-      res.type = 'unchanged';
-      res.value = firstValue;
+      return {
+        name: key,
+        type: 'added',
+        value: secondValue,
+      };
     }
-    return res;
+    if (!Object.hasOwn(obj2, key)) {
+      return {
+        name: key,
+        type: 'deleted',
+        value: firstValue,
+      };
+    }
+    if (firstValue !== secondValue) {
+      return {
+        name: key,
+        type: 'changed',
+        firstValue,
+        secondValue,
+      };
+    }
+    return {
+      name: key,
+      type: 'unchanged',
+      value: firstValue,
+    };
   };
-  const keys = Object.keys({ ...obj1, ...obj2 }).sort();
-  const diff = keys.map(compareProp);
+  const keys = Object.keys({ ...obj1, ...obj2 });
+  const sorted = [...keys].sort();
+  const diff = sorted.map(compareProp);
   return diff;
 };
 
