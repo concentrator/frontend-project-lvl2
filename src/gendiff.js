@@ -73,9 +73,8 @@ const compareObjects = (obj1, obj2) => {
       value: firstValue,
     };
   };
-  const keys = Object.keys({ ...obj1, ...obj2 });
-  const sorted = [...keys].sort();
-  const diff = sorted.map(compareProp);
+  const keys = Object.keys({ ...obj1, ...obj2 }).slice().sort();
+  const diff = keys.map(compareProp);
   return diff;
 };
 
