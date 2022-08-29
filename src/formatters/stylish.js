@@ -15,7 +15,7 @@ const getSignIndent = (depth) => SYMBOL.space.repeat(depth * indentSize - (inden
 const isLastItem = (arr, currentIndex) => currentIndex === arr.length - 1;
 
 const stringifyObject = (obj, depth = 1) => {
-  const keys = Object.keys(obj).slice().sort();
+  const keys = _.sortBy(Object.keys(obj));
   return keys.reduce((acc, key, index) => {
     const eol = isLastItem(keys, index) ? `${SYMBOL.lf}${getBraceIndent(depth)}}` : `${SYMBOL.lf}`;
     const value = _.isObject(obj[key]) ? stringifyObject(obj[key], (depth + 1)) : obj[key];
