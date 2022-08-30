@@ -1,0 +1,29 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+
+env:
+  CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: make install
+      - run: make lint
+      - name: CC fetch binary
+        run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      - name: CC chmod
+        run: chmod +x ./cc-test-reporter
+      - name: CC before build
+        run: ./cc-test-reporter before-build
+      - run: npm test
+      - name: CC after test
+        run: ./cc-test-reporter after-build
