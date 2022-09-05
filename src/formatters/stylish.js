@@ -46,9 +46,6 @@ const formatter = (diff) => {
       if (type === 'parent') {
         return `${acc}${spaceIndent}${name}:${iter(children, (depth + 1))}${eol}`;
       }
-      if (type === 'unchanged') {
-        return `${acc}${spaceIndent}${name}:${value}${eol}`;
-      }
       if (type === 'changed') {
         return `${acc}${signIndent}${SYMBOL.minus}${name}:${firstValue}${SYMBOL.lf}${signIndent}${SYMBOL.plus}${name}:${secondValue}${eol}`;
       }
@@ -58,7 +55,7 @@ const formatter = (diff) => {
       if (type === 'added') {
         return `${acc}${signIndent}${SYMBOL.plus}${name}:${value}${eol}`;
       }
-      throw new Error('Unknown type');
+      return `${acc}${spaceIndent}${name}:${value}${eol}`; // Unchanged
     }, ' {\n');
     return result;
   };

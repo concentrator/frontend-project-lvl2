@@ -1,111 +1,70 @@
 import { readFileSync } from 'node:fs';
 import path from 'path';
-import yaml from 'js-yaml';
 import _ from 'lodash';
+import parse from './parsers.js';
 import formatDiff from './formatters/index.js';
 
 const buildFullPath = (filepath) => path.resolve(process.cwd(), filepath);
 
-const getExtension = (filepath) => {
-  const ext = path.extname(filepath).split('.');
-  return ext[ext.length - 1];
-};
+const extractFormat = (filepath) => path.extname(filepath).slice(1);
 
-const getFormat = (filepath) => {
-  const filename = path.basename(filepath).toLowerCase();
-  const extension = getExtension(filename);
-  if (extension === 'json') {
-    return 'json';
-  }
-  if (extension === 'yml' || extension === 'yaml') {
-    return 'yaml';
-  }
-  throw new Error('Unexpected file extension');
-};
-
-const parse = (data, format) => {
-  switch (format) {
-    case 'json':
-      return JSON.parse(data);
-    case 'yaml':
-      return yaml.load(data);
-    default:
-      throw new Error('Unexpected format');
-  }
-};
+const readFile = (filepath) => readFileSync(buildFullPath(filepath));
 
 const compareObjects = (obj1, obj2) => {
-  const compareProp = (key) => {
-    const firstValue = obj1[key];
-    const secondValue = obj2[key];
-    if (_.isObject(firstValue) && _.isObject(secondValue)) {
+  const iter = (data1, data2) => {
+    const compareProp = (key) => {
+      const firstValue = data1[key];
+      const secondValue = data2[key];
+      if (_.isObject(firstValue) && _.isObject(secondValue)) {
+        return {
+          name: key,
+          type: 'parent',
+          children: iter(firstValue, secondValue),
+        };
+      }
+      if (!Object.hasOwn(data1, key)) {
+        return {
+          name: key,
+          type: 'added',
+          value: secondValue,
+        };
+      }
+      if (!Object.hasOwn(data2, key)) {
+        return {
+          name: key,
+          type: 'deleted',
+          value: firstValue,
+        };
+      }
+      if (firstValue !== secondValue) {
+        return {
+          name: key,
+          type: 'changed',
+          firstValue,
+          secondValue,
+        };
+      }
       return {
         name: key,
-        type: 'parent',
-        children: compareObjects(firstValue, secondValue),
-      };
-    }
-    if (!Object.hasOwn(obj1, key)) {
-      return {
-        name: key,
-        type: 'added',
-        value: secondValue,
-      };
-    }
-    if (!Object.hasOwn(obj2, key)) {
-      return {
-        name: key,
-        type: 'deleted',
+        type: 'unchanged',
         value: firstValue,
       };
-    }
-    if (firstValue !== secondValue) {
-      return {
-        name: key,
-        type: 'changed',
-        firstValue,
-        secondValue,
-      };
-    }
-    return {
-      name: key,
-      type: 'unchanged',
-      value: firstValue,
     };
+    const keys = _.sortBy(Object.keys({ ...data1, ...data2 }));
+    return keys.map(compareProp);
   };
-  const keys = _.sortBy(Object.keys({ ...obj1, ...obj2 }));
-  const diff = keys.map(compareProp);
-  return diff;
-};
-
-const buildDiff = (filepath1, filepath2) => {
-  const format1 = getFormat(filepath1);
-  const format2 = getFormat(filepath2);
-
-  const file1 = readFileSync(buildFullPath(filepath1));
-  const file2 = readFileSync(buildFullPath(filepath2));
-
-  const obj1 = parse(file1, format1);
-  const obj2 = parse(file2, format2);
-
-  const diff = compareObjects(obj1, obj2);
-
+  const children = iter(obj1, obj2);
   return {
     type: 'parent',
-    children: [...diff],
+    children: [...children],
   };
 };
 
 const genDiff = (filepath1, filepath2, format = 'stylish') => {
-  const diff = buildDiff(filepath1, filepath2);
+  const parsedFileData1 = parse(readFile(filepath1), extractFormat(filepath1));
+  const parsedFileData2 = parse(readFile(filepath2), extractFormat(filepath2));
+  const diff = compareObjects(parsedFileData1, parsedFileData2);
   return formatDiff(diff, format);
-};
-
-export {
-  getExtension,
-  getFormat,
-  parse,
-  buildDiff,
 };
 
 export default genDiff;

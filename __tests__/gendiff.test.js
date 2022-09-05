@@ -38,11 +38,3 @@ test('Compare 2 JSON files, json format', () => {
 test('Compare 2 YAML files, json format', () => {
   expect(genDiff(getFixturePath('file1_nested.yml'), getFixturePath('file2_nested.yml'), 'json')).toEqual(result3);
 });
-
-test('Compare 2 unknown files', () => {
-  expect(() => genDiff(getFixturePath('file1.conf'), getFixturePath('file2'))).toThrow('Unexpected file extension');
-});
-
-test('Pass unknown format argument', () => {
-  expect(() => genDiff(getFixturePath('file1_nested.yml'), getFixturePath('file2_nested.yml'), 'conf')).toThrow('Unexpected format');
-});
