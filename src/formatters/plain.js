@@ -1,34 +1,25 @@
 import _ from 'lodash';
 
-const STRING = {
-  prefix: 'Property',
-  object: '[complex value]',
-};
-
-const formatValue = (value) => {
-  if (_.isObject(value)) return `${STRING.object}`;
+const stringify = (value) => {
+  if (_.isObject(value)) return '[complex value]';
   if (_.isString(value)) return `'${value}'`;
-  return value;
-};
-
-const getPostfix = (node) => {
-  const {
-    type, value, firstValue, secondValue,
-  } = node;
-  const added = () => `was added with value: ${formatValue(value)}`;
-  const deleted = () => 'was removed';
-  const changed = () => `was updated. From ${formatValue(firstValue)} to ${formatValue(secondValue)}`;
-  const mapping = { added, deleted, changed };
-  return mapping[type]();
+  return String(value);
 };
 
 const formatter = (diff) => {
-  const iter = (node, chain) => {
-    const parents = chain ? `${chain}.` : '';
-    if (node.type !== 'parent') {
-      return (node.type !== 'unchanged') ? `${STRING.prefix} '${chain}' ${getPostfix(node)}` : [];
-    }
-    return node.children.flatMap((child) => iter(child, `${parents}${child.name}`));
+  const iter = (node, propertyPath) => {
+    const {
+      type, value, firstValue, secondValue, children,
+    } = node;
+    const mapping = {
+      root: () => children.flatMap((child) => iter(child, `${child.name}`)),
+      parent: () => children.flatMap((child) => iter(child, `${propertyPath}.${child.name}`)),
+      added: () => `Property '${propertyPath}' was added with value: ${stringify(value)}`,
+      deleted: () => `Property '${propertyPath}' was removed`,
+      changed: () => `Property '${propertyPath}' was updated. From ${stringify(firstValue)} to ${stringify(secondValue)}`,
+      unchanged: () => [],
+    };
+    return mapping[type]();
   };
   return iter(diff, '').join('\n');
 };

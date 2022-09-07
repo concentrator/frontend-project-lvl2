@@ -1,29 +1,27 @@
 import _ from 'lodash';
 
-const SYMBOL = {
-  space: '  ',
-  minus: '- ',
-  plus: '+ ',
-  lf: '\n',
-};
+const space = '  ';
+const minus = '- ';
+const plus = '+ ';
+const lf = '\n';
 
 const indentSize = 2;
 
-const getSpaceIndent = (depth) => SYMBOL.space.repeat(depth * indentSize);
-const getBraceIndent = (depth) => SYMBOL.space.repeat(depth * indentSize - indentSize);
-const getSignIndent = (depth) => SYMBOL.space.repeat(depth * indentSize - (indentSize - 1));
+const getSpaceIndent = (depth) => space.repeat(depth * indentSize);
+const getBraceIndent = (depth) => space.repeat(depth * indentSize - indentSize);
+const getSignIndent = (depth) => space.repeat(depth * indentSize - (indentSize - 1));
 const isLastItem = (arr, currentIndex) => currentIndex === arr.length - 1;
 
 const stringifyObject = (obj, depth = 1) => {
   const keys = _.sortBy(Object.keys(obj));
   return keys.reduce((acc, key, index) => {
-    const eol = isLastItem(keys, index) ? `${SYMBOL.lf}${getBraceIndent(depth)}}` : `${SYMBOL.lf}`;
+    const eol = isLastItem(keys, index) ? `${lf}${getBraceIndent(depth)}}` : `${lf}`;
     const value = _.isObject(obj[key]) ? stringifyObject(obj[key], (depth + 1)) : obj[key];
     return `${acc}${getSpaceIndent(depth)}${key}: ${value}${eol}`;
   }, '{\n');
 };
 
-const formatValue = (value, depth) => {
+const stringify = (value, depth) => {
   if (_.isObject(value)) {
     return ` ${stringifyObject(value, depth + 1)}`;
   }
@@ -37,25 +35,20 @@ const formatter = (diff) => {
     const signIndent = getSignIndent(depth);
     const result = data.reduce((acc, item, index) => {
       const { name, type, children } = item;
+      const eol = isLastItem(data, index) ? `${lf}${braceIndent}}` : `${lf}`;
+      const mapping = {
+        parent: () => `${acc}${spaceIndent}${name}:${iter(children, (depth + 1))}${eol}`,
+        added: () => `${acc}${signIndent}${plus}${name}:${stringify(item.value, depth)}${eol}`,
+        deleted: () => `${acc}${signIndent}${minus}${name}:${stringify(item.value, depth)}${eol}`,
+        changed: () => {
+          const oldValueStr = `${signIndent}${minus}${name}:${stringify(item.firstValue, depth)}`;
+          const newValueStr = `${signIndent}${plus}${name}:${stringify(item.secondValue, depth)}`;
+          return `${acc}${oldValueStr}${lf}${newValueStr}${eol}`;
+        },
+        unchanged: () => `${acc}${spaceIndent}${name}:${stringify(item.value, depth)}${eol}`,
+      };
 
-      const value = formatValue(item.value, depth);
-      const firstValue = formatValue(item.firstValue, depth);
-      const secondValue = formatValue(item.secondValue, depth);
-      const eol = isLastItem(data, index) ? `${SYMBOL.lf}${braceIndent}}` : `${SYMBOL.lf}`;
-
-      if (type === 'parent') {
-        return `${acc}${spaceIndent}${name}:${iter(children, (depth + 1))}${eol}`;
-      }
-      if (type === 'changed') {
-        return `${acc}${signIndent}${SYMBOL.minus}${name}:${firstValue}${SYMBOL.lf}${signIndent}${SYMBOL.plus}${name}:${secondValue}${eol}`;
-      }
-      if (type === 'deleted') {
-        return `${acc}${signIndent}${SYMBOL.minus}${name}:${value}${eol}`;
-      }
-      if (type === 'added') {
-        return `${acc}${signIndent}${SYMBOL.plus}${name}:${value}${eol}`;
-      }
-      return `${acc}${spaceIndent}${name}:${value}${eol}`; // Unchanged
+      return mapping[type]();
     }, ' {\n');
     return result;
   };

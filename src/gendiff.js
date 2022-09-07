@@ -8,8 +8,6 @@ const buildFullPath = (filepath) => path.resolve(process.cwd(), filepath);
 
 const extractFormat = (filepath) => path.extname(filepath).slice(1);
 
-const readFile = (filepath) => readFileSync(buildFullPath(filepath));
-
 const compareObjects = (obj1, obj2) => {
   const iter = (data1, data2) => {
     const compareProp = (key) => {
@@ -22,14 +20,14 @@ const compareObjects = (obj1, obj2) => {
           children: iter(firstValue, secondValue),
         };
       }
-      if (!Object.hasOwn(data1, key)) {
+      if (!_.has(data1, key)) {
         return {
           name: key,
           type: 'added',
           value: secondValue,
         };
       }
-      if (!Object.hasOwn(data2, key)) {
+      if (!_.has(data2, key)) {
         return {
           name: key,
           type: 'deleted',
@@ -55,14 +53,14 @@ const compareObjects = (obj1, obj2) => {
   };
   const children = iter(obj1, obj2);
   return {
-    type: 'parent',
+    type: 'root',
     children: [...children],
   };
 };
 
 const genDiff = (filepath1, filepath2, format = 'stylish') => {
-  const parsedFileData1 = parse(readFile(filepath1), extractFormat(filepath1));
-  const parsedFileData2 = parse(readFile(filepath2), extractFormat(filepath2));
+  const parsedFileData1 = parse(readFileSync(buildFullPath(filepath1)), extractFormat(filepath1));
+  const parsedFileData2 = parse(readFileSync(buildFullPath(filepath2)), extractFormat(filepath2));
   const diff = compareObjects(parsedFileData1, parsedFileData2);
   return formatDiff(diff, format);
 };
