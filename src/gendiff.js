@@ -5,7 +5,6 @@ import parse from './parsers.js';
 import formatDiff from './formatters/index.js';
 
 const buildFullPath = (filepath) => path.resolve(process.cwd(), filepath);
-
 const extractFormat = (filepath) => path.extname(filepath).slice(1);
 
 const compareObjects = (obj1, obj2) => {
