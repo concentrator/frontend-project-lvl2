@@ -1,26 +1,17 @@
 import _ from 'lodash';
 
-const space = '  ';
-const minus = '- ';
-const plus = '+ ';
-const openBrace = '{';
-const closeBrace = '}';
-const colon = ': ';
-const lf = '\n';
-
 const indentSize = 2;
 
-const getSpaceIndent = (depth) => space.repeat(depth * indentSize);
-const getBraceIndent = (depth) => space.repeat(depth * indentSize - indentSize);
-const getSignIndent = (depth) => space.repeat(depth * indentSize - (indentSize - 1));
+const getSpaceIndent = (depth) => '  '.repeat(depth * indentSize);
+const getBraceIndent = (depth) => '  '.repeat(depth * indentSize - indentSize);
+const getSignIndent = (depth) => '  '.repeat(depth * indentSize - (indentSize - 1));
 
 const stringify = (value, depth) => {
-  if (_.isObject(value)) {
-    const lines = Object.entries(value)
-      .map(([key, val]) => `${getSpaceIndent(depth + 1)}${key}${colon}${stringify(val, (depth + 1))}`);
-    return [`${openBrace}`, ...lines, `${getBraceIndent(depth + 1)}${closeBrace}`].join(lf);
-  }
-  return `${value}`;
+  if (!_.isObject(value)) return `${value}`;
+
+  const lines = Object.entries(value)
+    .map(([key, val]) => `${getSpaceIndent(depth + 1)}${key}: ${stringify(val, (depth + 1))}`);
+  return ['{', ...lines, `${getBraceIndent(depth + 1)}}`].join('\n');
 };
 
 const formatter = (diff) => {
@@ -30,19 +21,19 @@ const formatter = (diff) => {
     const signIndent = getSignIndent(depth);
     const { name, type, children } = data;
     const mapping = {
-      root: () => `${openBrace}${lf}${children.flatMap((child) => iter(child, (depth))).join(lf)}${lf}${closeBrace}`,
+      root: () => `{\n${children.flatMap((child) => iter(child, (depth))).join('\n')}\n}`,
       parent: () => {
-        const childrenStr = `${children.flatMap((child) => iter(child, (depth + 1))).join(lf)}`;
-        return `${spaceIndent}${name}${colon}${openBrace}${lf}${childrenStr}${lf}${braceIndent}${closeBrace}`;
+        const childrenStr = `${children.flatMap((child) => iter(child, (depth + 1))).join('\n')}`;
+        return `${spaceIndent}${name}: {\n${childrenStr}\n${braceIndent}}`;
       },
-      added: () => `${signIndent}${plus}${name}${colon}${stringify(data.value, depth)}`,
-      deleted: () => `${signIndent}${minus}${name}${colon}${stringify(data.value, depth)}`,
+      added: () => `${signIndent}+ ${name}: ${stringify(data.value, depth)}`,
+      deleted: () => `${signIndent}- ${name}: ${stringify(data.value, depth)}`,
       changed: () => {
-        const oldValueStr = `${signIndent}${minus}${name}${colon}${stringify(data.firstValue, depth)}`;
-        const newValueStr = `${signIndent}${plus}${name}${colon}${stringify(data.secondValue, depth)}`;
-        return `${oldValueStr}${lf}${newValueStr}`;
+        const oldValueStr = `${signIndent}- ${name}: ${stringify(data.firstValue, depth)}`;
+        const newValueStr = `${signIndent}+ ${name}: ${stringify(data.secondValue, depth)}`;
+        return `${oldValueStr}\n${newValueStr}`;
       },
-      unchanged: () => `${spaceIndent}${name}${colon}${stringify(data.value, depth)}`,
+      unchanged: () => `${spaceIndent}${name}: ${stringify(data.value, depth)}`,
     };
     return mapping[type]();
   };
