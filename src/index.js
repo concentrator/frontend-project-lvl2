@@ -34,8 +34,7 @@ const buildDiff = (dataFirst, dataSecond) => {
     const keys = _.sortBy(_.union(_.keys(data1), _.keys(data2)));
     return keys.map(compareProps);
   };
-  const children = iter(dataFirst, dataSecond);
-  return { type: 'root', children: [...children] };
+  return { type: 'root', children: iter(dataFirst, dataSecond) };
 };
 
 const genDiff = (filepath1, filepath2, format = 'stylish') => {
